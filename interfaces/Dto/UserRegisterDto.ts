@@ -10,6 +10,7 @@ import {
 
 export class UserRegisterDto {
   constructor(name: string, email: string, password: string, role: Role) {
+    this.name = name;
     this.email = email;
     this.password = password;
     this.role = role;

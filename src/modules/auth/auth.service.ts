@@ -5,16 +5,16 @@ import {
 } from '@nestjs/common';
 import { AuthRepository } from './auth.repository';
 import { User } from '@prisma/client';
-import { ConfigService } from '@nestjs/config';
 import { FileUploadService } from '../file-upload/file-upload.service';
 import * as bcrypt from 'bcrypt';
 import { InvalidPasswordException } from 'src/Exceptions/invalid-password.exception';
+import { sign } from 'jsonwebtoken';
+
 
 @Injectable()
 export class AuthService {
   constructor(
     private repository: AuthRepository,
-    private readonly configService: ConfigService,
     private readonly fileUploadService: FileUploadService,
   ) {}
 
@@ -59,6 +59,9 @@ export class AuthService {
     if (!passwordValid) {
       throw new InvalidPasswordException();
     }
+    const payload = { email, role: user?.role };
+    const accessToken = sign(payload, 'your-secret-key');
+    user.token = accessToken;
     return user;
   }
 }

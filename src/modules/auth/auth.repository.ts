@@ -17,15 +17,4 @@ export class AuthRepository {
     });
     return user;
   }
-
-  async loginUser(params: {
-    email: string;
-    password: string;
-  }): Promise<User | null> {
-    const { email, password } = params;
-    const user = await this.prisma.user.findUnique({
-      where: { email: email },
-    });
-    return user;
-  }
 }

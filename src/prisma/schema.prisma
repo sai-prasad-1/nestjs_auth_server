@@ -20,6 +20,7 @@ model User {
   role      Role     @default(QC_USER)
   img       String?
   password  String  
+  token    String? @default("")
 }
 
 
