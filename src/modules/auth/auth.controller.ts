@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
-  HttpException,
+  Delete,
+  Get,
+  Param,
   Post,
   SetMetadata,
   UploadedFile,
@@ -11,19 +13,14 @@ import {
 import { AuthService } from './auth.service';
 import { Role, User } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { validate } from 'class-validator';
 import { UserRegisterDto } from 'interfaces/Dto/UserRegisterDto';
 import { UserLoginDto } from 'interfaces/Dto/UserLoginDto';
 import { JwtAuthGuard } from 'src/guards/jwtguard/jwtguard.guard';
-import { RolesGuard } from 'src/guards/roles-guard/roles-guard.guard';
-
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-
   @Post('register')
-  @UseGuards(JwtAuthGuard,RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @SetMetadata('roles', [Role.ADMIN, Role.SUPER_ADMIN])
   @UseInterceptors(FileInterceptor('image'))
   async register(
@@ -31,11 +28,6 @@ export class AuthController {
     @UploadedFile() image: Express.Multer.File,
   ): Promise<User> {
     const { name,email, password, role } = userRegisterDto;
-    const userRegisterData = new UserRegisterDto(name,email, password, role);
-    const errors = await validate(userRegisterData);
-    if (errors.length > 0) {
-      throw new HttpException(errors, 400);
-    }
     const user = await this.authService.createUser({
       name,
       email,
@@ -46,11 +38,22 @@ export class AuthController {
     });
     return user;
   }
-
   @Post('login')
   async loginUser(@Body() userLoginDto:UserLoginDto): Promise<User | null> {
   const {email, password } = userLoginDto;
   const user = await this.authService.loginUser({ email, password });
   return user;
+  }
+  @Get('users')
+  @UseGuards(JwtAuthGuard)
+  @SetMetadata('roles', [Role.ADMIN, Role.SUPER_ADMIN])
+  async getAllUsers(): Promise<ReturnAllUsersDto[]> {
+    return this.authService.getAllUsers();
+  }
+  @Delete('delete/:id')
+  @UseGuards(JwtAuthGuard)
+  @SetMetadata('roles', [Role.SUPER_ADMIN])
+  async deleteUser(@Param('id') id: string): Promise<User> {
+    return this.authService.deleteUser(id);
   }
 }

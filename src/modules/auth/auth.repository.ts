@@ -17,4 +17,31 @@ export class AuthRepository {
     });
     return user;
   }
+
+  async findAllUsers(): Promise<ReturnAllUsersDto[]> {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        lastLogin: true,
+        img:true,
+        password: false,
+        token: false,
+      }, 
+    });
+    return users;
+  }
+
+  async updateUser(params: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Prisma.UserUpdateInput;
+  }): Promise<User> {
+    return this.prisma.user.update(params);
+  }
+
+  async deleteUser(params: { where: Prisma.UserWhereUniqueInput }): Promise<User> {
+    return this.prisma.user.delete(params);
+  }
 }

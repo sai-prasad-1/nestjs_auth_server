@@ -13,6 +13,7 @@ import { JwtStrategy } from './strategies/accessToken.strategy';
 
 @Module({
     imports: [PrismaModule,PassportModule,JwtModule.register({
+      // TODO: move secret to env
         secret: 'your-secret-key',
         signOptions: { expiresIn: '1d' },
       }),],

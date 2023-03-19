@@ -32,7 +32,7 @@ export class FileUploadService {
     
     // Set S3 upload parameters
     const uploadParams = {
-      Bucket:'cce-web-test',
+      Bucket:this.configService.get<string>('AWS_BUCKET_NAME')!,
       Key: `${folder}/${email}.${image.originalname.split('.').pop()}`,
       Body: image.buffer,
 
